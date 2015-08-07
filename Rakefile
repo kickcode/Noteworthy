@@ -12,3 +12,4 @@ Motion::Project::App.setup do |app|
   # Use `rake config' to see complete project settings.
   app.name = 'Noteworthy'
 end
+task :"build:development" => :"schema:build"

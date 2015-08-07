@@ -1,0 +1,2 @@
+class Note < CDQManagedObject
+end

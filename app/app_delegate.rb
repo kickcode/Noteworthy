@@ -1,12 +1,16 @@
 class AppDelegate
+  include CDQ
+
   def applicationDidFinishLaunching(notification)
+    cdq.setup
+
     buildMenu
     buildWindow
 
     @title_text = @layout.get(:title_text)
     @content_text = @layout.get(:content_text)
 
-    @notes = []
+    @notes = Note.all
     @table_view = @layout.get(:table_view)
     @table_view.delegate = self
     @table_view.dataSource = self
@@ -20,7 +24,9 @@ class AppDelegate
     title = @title_text.stringValue
     content = @content_text.stringValue
     return if title.nil? || title.empty? || content.nil? || content.empty?
-    @notes << {:title => title, :content => content}
+    Note.create(:title => title, :content => content, :created_at => Time.now)
+    cdq.save
+    @notes = Note.all
     @table_view.reloadData
     @title_text.stringValue = ""
     @content_text.stringValue = ""
@@ -37,7 +43,7 @@ class AppDelegate
       result.identifier = column.identifier
       result.editable = false
     end
-    result.stringValue = @notes[row][column.identifier.to_sym]
+    result.stringValue = @notes.to_a[row].send(column.identifier.to_sym)
     result
   end
 
