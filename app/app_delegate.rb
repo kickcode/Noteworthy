@@ -20,8 +20,10 @@ class AppDelegate
     @save_button.action = 'note_save:'
   end
 
-  def load_notes
-    @notes = Note.sort_by(:created_at, :order => :descending)
+  def load_notes(sort_by = nil)
+    @sort_by ||= :created_at
+    @sort_by = sort_by unless sort_by.nil?
+    @notes = Note.sort_by(@sort_by, :order => :descending)
     @table_view.reloadData if @table_view
   end
 
@@ -53,6 +55,10 @@ class AppDelegate
       result.stringValue = @notes.to_a[row].send(column.identifier.to_sym)
     end
     result
+  end
+
+  def tableView(table_view, didClickTableColumn: column)
+    self.load_notes(column.identifier.to_sym)
   end
 
   def buildWindow
