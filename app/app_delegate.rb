@@ -21,9 +21,11 @@ class AppDelegate
   end
 
   def load_notes(sort_by = nil)
+    @sort_order ||= :descending
+    @sort_order = (@sort_order == :descending ? :ascending : :descending) if @sort_by && @sort_by == sort_by
     @sort_by ||= :created_at
     @sort_by = sort_by unless sort_by.nil?
-    @notes = Note.sort_by(@sort_by, :order => :descending)
+    @notes = Note.sort_by(@sort_by, :order => @sort_order)
     @table_view.reloadData if @table_view
   end
 
