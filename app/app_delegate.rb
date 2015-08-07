@@ -10,7 +10,7 @@ class AppDelegate
     @title_text = @layout.get(:title_text)
     @content_text = @layout.get(:content_text)
 
-    @notes = Note.all
+    self.load_notes
     @table_view = @layout.get(:table_view)
     @table_view.delegate = self
     @table_view.dataSource = self
@@ -20,14 +20,18 @@ class AppDelegate
     @save_button.action = 'note_save:'
   end
 
+  def load_notes
+    @notes = Note.sort_by(:created_at, :order => :descending)
+    @table_view.reloadData if @table_view
+  end
+
   def note_save(sender)
     title = @title_text.stringValue
     content = @content_text.stringValue
     return if title.nil? || title.empty? || content.nil? || content.empty?
     Note.create(:title => title, :content => content, :created_at => Time.now)
     cdq.save
-    @notes = Note.all
-    @table_view.reloadData
+    self.load_notes
     @title_text.stringValue = ""
     @content_text.stringValue = ""
   end
