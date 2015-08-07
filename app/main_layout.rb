@@ -70,6 +70,11 @@ class MainLayout < MotionKit::Layout
 
         add_column "content" do
           title "Content"
+          min_width 600
+        end
+
+        add_column "created_at" do
+          title "Created"
         end
       end
       document_view table_view

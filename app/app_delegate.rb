@@ -43,12 +43,16 @@ class AppDelegate
       result.identifier = column.identifier
       result.editable = false
     end
-    result.stringValue = @notes.to_a[row].send(column.identifier.to_sym)
+    if column.identifier == "created_at"
+      result.stringValue = @notes.to_a[row].created_at.strftime("%a %d %b %Y %I:%M:%S%p")
+    else
+      result.stringValue = @notes.to_a[row].send(column.identifier.to_sym)
+    end
     result
   end
 
   def buildWindow
-    @mainWindow = NSWindow.alloc.initWithContentRect([[240, 180], [480, 360]],
+    @mainWindow = NSWindow.alloc.initWithContentRect([[240, 180], [960, 720]],
       styleMask: NSTitledWindowMask|NSClosableWindowMask|NSMiniaturizableWindowMask|NSResizableWindowMask,
       backing: NSBackingStoreBuffered,
       defer: false)
