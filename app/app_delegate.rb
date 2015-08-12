@@ -5,7 +5,7 @@ class AppDelegate
   KV_SORT_BY = 'sort_by'
 
   def applicationDidFinishLaunching(notification)
-    cdq.setup
+    cdq.setup(:store => cdq.stores.new(:icloud => true, :model_manager => cdq.models))
 
     @kv_store = NSUserDefaults.standardUserDefaults
 
@@ -23,6 +23,15 @@ class AppDelegate
     @save_button = @layout.get(:save_button)
     @save_button.target = self
     @save_button.action = 'note_save:'
+
+    NSNotificationCenter.defaultCenter.addObserver(self, selector: 'icloud_did_change:', name: NSPersistentStoreDidImportUbiquitousContentChangesNotification, object: cdq.stores.current)
+  end
+
+  def icloud_did_change(notification)
+    cdq.contexts.current.performBlock(Proc.new do
+      cdq.contexts.current.mergeChangesFromContextDidSaveNotification(notification)
+      self.load_notes
+    end)
   end
 
   def applicationWillTerminate(application)
@@ -34,9 +43,9 @@ class AppDelegate
     @sort_order = (@sort_order == :descending ? :ascending : :descending) if @sort_by && @sort_by == sort_by
     @sort_by ||= (@kv_store.stringForKey(KV_SORT_BY) || 'created_at').to_sym
     @sort_by = sort_by unless sort_by.nil?
-    @notes = Note.sort_by(@sort_by, :order => @sort_order)
+    @notes = Note.sort_by(@sort_by, :order => @sort_order).to_a
     self.save_settings!
-    @table_view.reloadData if @table_view
+    Dispatch::Queue.main.async { @table_view.reloadData if @table_view }
   end
 
   def save_settings!
@@ -67,9 +76,9 @@ class AppDelegate
       result.editable = false
     end
     if column.identifier == "created_at"
-      result.stringValue = @notes.to_a[row].created_at.strftime("%a %d %b %Y %I:%M:%S%p")
+      result.stringValue = @notes[row].created_at.strftime("%a %d %b %Y %I:%M:%S%p")
     else
-      result.stringValue = @notes.to_a[row].send(column.identifier.to_sym)
+      result.stringValue = @notes[row].send(column.identifier.to_sym)
     end
     result
   end
