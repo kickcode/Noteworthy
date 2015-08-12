@@ -25,6 +25,10 @@ class AppDelegate
     @save_button.action = 'note_save:'
   end
 
+  def applicationWillTerminate(application)
+    @kv_store.synchronize
+  end
+
   def load_notes(sort_by = nil)
     @sort_order ||= (@kv_store.stringForKey(KV_SORT_ORDER) || 'descending').to_sym
     @sort_order = (@sort_order == :descending ? :ascending : :descending) if @sort_by && @sort_by == sort_by
