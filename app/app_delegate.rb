@@ -1,8 +1,13 @@
 class AppDelegate
   include CDQ
 
+  KV_SORT_ORDER = 'sort_order'
+  KV_SORT_BY = 'sort_by'
+
   def applicationDidFinishLaunching(notification)
     cdq.setup
+
+    @kv_store = NSUserDefaults.standardUserDefaults
 
     buildMenu
     buildWindow
@@ -21,12 +26,18 @@ class AppDelegate
   end
 
   def load_notes(sort_by = nil)
-    @sort_order ||= :descending
+    @sort_order ||= (@kv_store.stringForKey(KV_SORT_ORDER) || 'descending').to_sym
     @sort_order = (@sort_order == :descending ? :ascending : :descending) if @sort_by && @sort_by == sort_by
-    @sort_by ||= :created_at
+    @sort_by ||= (@kv_store.stringForKey(KV_SORT_BY) || 'created_at').to_sym
     @sort_by = sort_by unless sort_by.nil?
     @notes = Note.sort_by(@sort_by, :order => @sort_order)
+    self.save_settings!
     @table_view.reloadData if @table_view
+  end
+
+  def save_settings!
+    @kv_store.setObject(@sort_order, forKey: KV_SORT_ORDER)
+    @kv_store.setObject(@sort_by, forKey: KV_SORT_BY)
   end
 
   def note_save(sender)
