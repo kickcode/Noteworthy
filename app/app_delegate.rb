@@ -8,6 +8,7 @@ class AppDelegate
     cdq.setup(:store => cdq.stores.new(:icloud => true, :model_manager => cdq.models))
 
     @kv_store = NSUbiquitousKeyValueStore.defaultStore
+    NSNotificationCenter.defaultCenter.addObserver(self, selector: 'kv_did_change:', name: NSUbiquitousKeyValueStoreDidChangeExternallyNotification, object: @kv_store)
 
     buildMenu
     buildWindow
@@ -32,6 +33,15 @@ class AppDelegate
       cdq.contexts.current.mergeChangesFromContextDidSaveNotification(notification)
       self.load_notes
     end)
+  end
+
+  def kv_did_change(notification)
+    @kv_store.synchronize
+    sort_order = @kv_store.stringForKey(KV_SORT_ORDER)
+    @sort_order = sort_order.to_sym if sort_order
+    sort_by = @kv_store.stringForKey(KV_SORT_BY)
+    @sort_by = sort_by.to_sym if sort_by
+    self.load_notes
   end
 
   def applicationWillTerminate(application)
