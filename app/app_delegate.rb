@@ -7,7 +7,7 @@ class AppDelegate
   def applicationDidFinishLaunching(notification)
     cdq.setup(:store => cdq.stores.new(:icloud => true, :model_manager => cdq.models))
 
-    @kv_store = NSUserDefaults.standardUserDefaults
+    @kv_store = NSUbiquitousKeyValueStore.defaultStore
 
     buildMenu
     buildWindow

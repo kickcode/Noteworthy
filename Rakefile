@@ -16,6 +16,7 @@ Motion::Project::App.setup do |app|
   app.identifier = "com.#{ENV['ORG']}.#{app.name.downcase}"
   app.entitlements["com.apple.developer.ubiquity-container-identifiers"] = ["iCloud.#{app.identifier}"]
   app.entitlements['com.apple.application-identifier'] = "#{ENV['TEAM_ID']}.#{app.identifier}"
+  app.entitlements["com.apple.developer.ubiquity-kvstore-identifier"] = app.entitlements['com.apple.application-identifier']
 
   app.codesign_for_development = true
 end
